@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>个人名片 - 微信扫码获取</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&display=swap">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Noto Sans SC', sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            color: #333;
+            line-height: 1.6;
+            padding: 20px;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .card-container {
+            width: 100%;
+            max-width: 420px;
+            margin: 20px auto;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            border-radius: 20px;
+            overflow: hidden;
+            background-color: white;
+            position: relative;
+        }
+        
+        /* 微信风格顶部装饰 */
+        .card-header {
+            background: linear-gradient(to right, #07c160, #0bbd5f);
+            height: 100px;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .card-header::after {
+            content: "";
+            position: absolute;
+            bottom: -50px;
+            left: 0;
+            width: 100%;
+            height: 100px;
+            background-color: white;
+            border-radius: 50%;
+        }
+        
+        /* 头像区域 */
+        .avatar-section {
+            display: flex;
+            justify-content: center;
+            position: relative;
+            z-index: 2;
+            margin-top: -40px;
+            margin-bottom: 10px;
+        }
+        
+        .avatar {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            border: 5px solid white;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            object-fit: cover;
+            background-color: #f5f5f5;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #999;
+            font-size: 36px;
+        }
+        
+        /* 个人信息区域 */
+        .info-section {
+            padding: 0 30px 30px;
+        }
+        
+        .name-title {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        
+        .name {
+            font-size: 26px;
+            font-weight: 700;
+            color: #222;
+            margin-bottom: 5px;
+        }
+        
+        .title {
+            font-size: 16px;
+            color: #07c160;
+            font-weight: 500;
+        }
+        
+        .company {
+            font-size: 16px;
+            color: #666;
+            margin-top: 5px;
+        }
+        
+        /* 详细信息区域 */
+        .details {
+            background-color: #f9f9f9;
+            border-radius: 15px;
+            padding: 20px;
+            margin-top: 15px;
+        }
+        
+        .detail-item {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 18px;
+            padding-bottom: 18px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .detail-item:last-child {
+            margin-bottom: 0;
+            border-bottom: none;
+        }
+        
+        .detail-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background-color: #e9f8f0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #07c160;
+            margin-right: 15px;
+            flex-shrink: 0;
+        }
+        
+        .detail-content {
+            flex: 1;
+        }
+        
+        .detail-label {
+            font-size: 14px;
+            color: #999;
+            margin-bottom: 4px;
+        }
+        
+        .detail-text {
+            font-size: 16px;
+            color: #333;
+            font-weight: 500;
+            word-break: break-word;
+        }
+        
+        .detail-text a {
+            color: #07c160;
+            text-decoration: none;
+            font-weight: 500;
+        }
+        
+        .detail-text a:hover {
+            text-decoration: underline;
+        }
+        
+        /* 产品介绍区域 */
+        .products-section {
+            margin-top: 25px;
+        }
+        
+        .section-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: #222;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .section-title i {
+            margin-right: 8px;
+            color: #07c160;
+        }
+        
+        .product-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+        
+        .product-card {
+            background-color: #f9f9f9;
+            border-radius: 12px;
+            padding: 15px;
+            text-align: center;
+            transition: all 0.3s ease;
+            border: 1px solid #eee;
+        }
+        
+        .product-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+        }
+        
+        .product-icon {
+            font-size: 28px;
+            color: #07c160;
+            margin-bottom: 10px;
+        }
+        
+        .product-name {
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #333;
+        }
+        
+        .product-desc {
+            font-size: 13px;
+            color: #666;
+            margin-bottom: 12px;
+        }
+        
+        .product-link {
+            display: inline-block;
+            background-color: #07c160;
+            color: white;
+            text-decoration: none;
+            padding: 6px 15px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 500;
+            transition: background-color 0.3s;
+        }
+        
+        .product-link:hover {
+            background-color: #06ad56;
+        }
+        
+        /* 底部区域 */
+        .card-footer {
+            background-color: #f9f9f9;
+            text-align: center;
+            padding: 20px;
+            margin-top: 25px;
+            border-top: 1px solid #eee;
+            font-size: 14px;
+            color: #999;
+        }
+        
+        .wechat-label {
+            color: #07c160;
+            font-weight: 600;
+        }
+        
+        /* 响应式调整 */
+        @media (max-width: 480px) {
+            .card-container {
+                border-radius: 15px;
+            }
+            
+            .info-section {
+                padding: 0 20px 25px;
+            }
+            
+            .product-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        /* 点击效果 */
+        .clickable {
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .clickable:active {
+            transform: scale(0.98);
+        }
+        
+        /* 复制成功提示 */
+        .copy-notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background-color: #07c160;
+            color: white;
+            padding: 12px 20px;
+            border-radius: 8px;
+            font-weight: 500;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            z-index: 100;
+            opacity: 0;
+            transform: translateY(-20px);
+            transition: all 0.3s;
+        }
+        
+        .copy-notification.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    </style>
+</head>
+<body>
+    <div class="card-container">
+        <!-- 顶部装饰区域 -->
+        <div class="card-header">
+            <div style="color: white; font-size: 24px; font-weight: 500; position: relative; z-index: 2;">
+                <i class="fab fa-weixin"></i> 个人名片
+            </div>
+        </div>
+        
+        <!-- 头像区域 -->
+        <div class="avatar-section">
+            <div class="avatar" id="avatar">
+                <i class="fas fa-user"></i>
+            </div>
+        </div>
+        
+        <!-- 个人信息区域 -->
+        <div class="info-section">
+            <div class="name-title">
+                <h1 class="name" id="name">张明</h1>
+                <div class="title" id="title">高级产品经理</div>
+                <div class="company" id="company">创新科技有限公司</div>
+            </div>
+            
+            <!-- 详细信息区域 -->
+            <div class="details">
+                <!-- 个人简介 -->
+                <div class="detail-item">
+                    <div class="detail-icon">
+                        <i class="fas fa-user-circle"></i>
+                    </div>
+                    <div class="detail-content">
+                        <div class="detail-label">个人简介</div>
+                        <div class="detail-text" id="bio">10年互联网产品经验，专注于用户体验设计与企业数字化转型解决方案。曾主导多个千万级用户产品的设计与研发。</div>
+                    </div>
+                </div>
+                
+                <!-- 电话 -->
+                <div class="detail-item clickable" onclick="copyToClipboard('13800138000', '电话')">
+                    <div class="detail-icon">
+                        <i class="fas fa-phone-alt"></i>
+                    </div>
+                    <div class="detail-content">
+                        <div class="detail-label">联系电话</div>
+                        <div class="detail-text" id="phone">13800138000</div>
+                    </div>
+                </div>
+                
+                <!-- 微信 -->
+                <div class="detail-item clickable" onclick="copyToClipboard('zhangming2023', '微信')">
+                    <div class="detail-icon">
+                        <i class="fab fa-weixin"></i>
+                    </div>
+                    <div class="detail-content">
+                        <div class="detail-label">微信</div>
+                        <div class="detail-text" id="wechat">zhangming2023</div>
+                    </div>
+                </div>
+                
+                <!-- 地址 -->
+                <div class="detail-item">
+                    <div class="detail-icon">
+                        <i class="fas fa-map-marker-alt"></i>
+                    </div>
+                    <div class="detail-content">
+                        <div class="detail-label">办公地址</div>
+                        <div class="detail-text" id="address">北京市海淀区中关村科技园创新大厦18层</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 产品介绍区域 -->
+            <div class="products-section">
+                <div class="section-title">
+                    <i class="fas fa-box-open"></i> 产品介绍
+                </div>
+                <div class="product-grid">
+                    <div class="product-card">
+                        <div class="product-icon">
+                            <i class="fas fa-chart-line"></i>
+                        </div>
+                        <div class="product-name">企业数据中台</div>
+                        <div class="product-desc">一站式数据整合、管理与分析平台</div>
+                        <a href="#product1" class="product-link">查看详情</a>
+                    </div>
+                    
+                    <div class="product-card">
+                        <div class="product-icon">
+                            <i class="fas fa-mobile-alt"></i>
+                        </div>
+                        <div class="product-name">智能办公APP</div>
+                        <div class="product-desc">移动化办公与团队协作解决方案</div>
+                        <a href="#product2" class="product-link">查看详情</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 底部区域 -->
+        <div class="card-footer">
+            <p>微信扫码访问 | 长按保存名片</p>
+            <p>最后更新: <span id="current-date"></span></p>
+        </div>
+    </div>
+    
+    <!-- 复制成功提示 -->
+    <div class="copy-notification" id="copyNotification"></div>
+
+    <script>
+        // 设置当前日期
+        document.getElementById('current-date').textContent = new Date().toLocaleDateString('zh-CN', {
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit'
+        });
+        
+        // 复制到剪贴板功能
+        function copyToClipboard(text, label) {
+            if (navigator.clipboard && window.isSecureContext) {
+                navigator.clipboard.writeText(text).then(() => {
+                    showCopyNotification(`已复制${label}: ${text}`);
+                });
+            } else {
+                // 兼容旧版浏览器
+                const textArea = document.createElement("textarea");
+                textArea.value = text;
+                textArea.style.position = "fixed";
+                textArea.style.left = "-999999px";
+                textArea.style.top = "-999999px";
+                document.body.appendChild(textArea);
+                textArea.focus();
+                textArea.select();
+                try {
+                    document.execCommand('copy');
+                    showCopyNotification(`已复制${label}: ${text}`);
+                } catch (err) {
+                    showCopyNotification("复制失败，请手动复制");
+                }
+                textArea.remove();
+            }
+        }
+        
+        // 显示复制成功提示
+        function showCopyNotification(message) {
+            const notification = document.getElementById('copyNotification');
+            notification.textContent = message;
+            notification.classList.add('show');
+            
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 2000);
+        }
+        
+        // 模拟点击头像可更换头像（演示功能）
+        document.getElementById('avatar').addEventListener('click', function() {
+            const avatar = document.getElementById('avatar');
+            const names = ['张明', '李华', '王芳', '刘伟'];
+            const randomName = names[Math.floor(Math.random() * names.length)];
+            
+            // 随机生成头像背景色
+            const colors = ['#07c160', '#ff6b6b', '#4dabf7', '#ffa94d', '#9775fa'];
+            const randomColor = colors[Math.floor(Math.random() * colors.length)];
+            
+            avatar.style.backgroundColor = randomColor;
+            document.getElementById('name').textContent = randomName;
+            
+            showCopyNotification(`已切换为 ${randomName} 的名片`);
+        });
+        
+        // 产品链接点击事件
+        document.querySelectorAll('.product-link').forEach(link => {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                const productName = this.closest('.product-card').querySelector('.product-name').textContent;
+                showCopyNotification(`正在打开 ${productName} 详情页`);
+                
+                // 在实际应用中，这里应该跳转到对应的产品页面
+                // window.location.href = this.getAttribute('href');
+            });
+        });
+    </script>
+</body>
+</html>
